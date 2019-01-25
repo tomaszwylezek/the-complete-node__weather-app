@@ -1,6 +1,6 @@
-const request = require("request");
 const yargs = require("yargs");
-const key = require("./secret");
+
+const geocode = require("./geocode/geocode");
 
 const argv = yargs
   .options({
@@ -14,17 +14,10 @@ const argv = yargs
   .help()
   .alias("help", "h").argv;
 
-const encodedAddress = encodeURIComponent(argv.address);
-
-request(
-  {
-    url: `http://www.mapquestapi.com/geocoding/v1/address?key=${key}&location=${encodedAddress}`,
-    json: true
-  },
-  (err, response, body) => {
-    console.log(`Address: ${body.results[0].locations[0].street}`);
-    console.log(`Latitude: ${body.results[0].locations[0].latLng.lat}`);
-    console.log(`Longitude: ${body.results[0].locations[0].latLng.lng}`);
-    // console.log(JSON.stringify(body, undefined, 2));
+geocode.geocodeAddress(argv.address, (errorMessage, results) => {
+  if (errorMessage) {
+    console.log(errorMessage);
+  } else {
+    console.log(JSON.stringify(results, undefined, 2));
   }
-);
+});
